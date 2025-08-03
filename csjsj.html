@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>赤石计算器 - 永远错误</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column}
+  #screen{width:340px;height:160px;background:#000;border-radius:8px;font-family:Consolas;font-size:15px;padding:10px;overflow-y:auto;margin-bottom:15px;color:#fff}
+  .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:340px}
+  button{background:#ff3b30;color:#fff;font-size:20px;border:0;border-radius:6px;cursor:pointer;padding:.6em}
+  button:hover{background:#ff1a1a}
+  button:nth-child(17){grid-column:span:4}
+</style>
+</head>
+<body>
+
+<div id="screen"></div>
+
+<div class="pad">
+  <button onclick="press('7')">7</button><button onclick="press('8')">8</button><button onclick="press('9')">9</button><button onclick="press('/')">/</button>
+  <button onclick="press('4')">4</button><button onclick="press('5')">5</button><button onclick="press('6')">6</button><button onclick="press('*')">*</button>
+  <button onclick="press('1')">1</button><button onclick="press('2')">2</button><button onclick="press('3')">3</button><button onclick="press('-')">-</button>
+  <button onclick="press('0')">0</button><button onclick="press('.')">.</button><button onclick="press('C')">C</button><button onclick="press('+')">+</button>
+  <button onclick="press('=')">=</button>
+</div>
+
+<script>
+let expr='';
+const out=document.getElementById('screen');
+
+function write(t,clr=false){
+  if(clr) out.innerHTML='';
+  out.insertAdjacentHTML('beforeend',t+'<br>');
+  out.scrollTop=out.scrollHeight;
+}
+
+// 统一错误规则：原值×2+随机(1~5)
+function wrong(n){
+  return n*2 + Math.floor(Math.random()*5+1);
+}
+
+function press(key){
+  if(key==='C'){expr='';write('',true);return;}
+  if(key==='=' && expr){
+    write(expr,true);
+    const log=[
+      "初始化日志中...",
+      "正在打计算模块 public class calculation",
+      "正在计算",
+      "完成计算",
+      "完成日志输出"
+    ];
+    let i=0;
+    const timer=setInterval(()=>{
+      write(log[i++]);
+      if(i===log.length){
+        clearInterval(timer);
+        let result;
+        try{result=eval(expr);}catch{result='Error';}
+        result=wrong(result);           // 100% 错误
+        out.innerHTML='';
+        if(result>250){out.innerHTML='算力不够';}
+        else{out.innerHTML=String(result);}
+        expr=String(result);
+      }
+    },350);
+    return;
+  }
+  if(key!=='='){
+    const cur=out.textContent.trim();
+    if(/^\d+(?:\.\d+)?$/.test(cur)){expr='';write('',true);}
+    expr+=key;
+    write(expr,true);
+  }
+}
+</script>
+
+</body>
+</html>
